@@ -164,7 +164,7 @@ public partial class SimpleAnimationPlayable : PlayableBehaviour
                 if (!IsValid())
                     throw new System.InvalidOperationException("This StateHandle is not valid");
 
-                float length = m_Parent.m_States.GetStateLength(m_Index);
+                float length = m_Parent.m_States.GetClipLength(m_Index);
                 if (length == 0f)
                     length = 1f;
 
@@ -175,7 +175,7 @@ public partial class SimpleAnimationPlayable : PlayableBehaviour
                 if (!IsValid())
                     throw new System.InvalidOperationException("This StateHandle is not valid");
 
-                float length = m_Parent.m_States.GetStateLength(m_Index);
+                float length = m_Parent.m_States.GetClipLength(m_Index);
                 if (length == 0f)
                     length = 1f;
 
@@ -293,7 +293,6 @@ public partial class SimpleAnimationPlayable : PlayableBehaviour
         public bool isClone;
         public StateHandle parentState;
 
-        //
         public bool weightDirty;
         public bool enabledDirty;
         public bool timeIsUpToDate;
@@ -427,7 +426,7 @@ public partial class SimpleAnimationPlayable : PlayableBehaviour
             StateInfo state = m_States[index];
             state.time = time;
 
-            state.playable.SetTime(time);
+            state.playable.ResetTime(time);
             state.playable.SetDone(time >= state.playable.GetDuration());
         }
 
@@ -471,6 +470,15 @@ public partial class SimpleAnimationPlayable : PlayableBehaviour
                 return Mathf.Infinity;
 
             return clip.length / speed;
+        }
+
+        public float GetClipLength(int index)
+        {
+            AnimationClip clip = m_States[index].clip;
+            if (clip == null)
+                return 0f;
+
+            return clip.length;
         }
 
         public float GetStatePlayableDuration(int index)
@@ -522,7 +530,7 @@ public partial class SimpleAnimationPlayable : PlayableBehaviour
                 state.enabled = false;
                 state.enabledDirty = true;
                 state.weightDirty = true;
-                state.playable.SetTime(0f);
+                state.playable.ResetTime(0f);
                 state.playable.SetDone(false);
             }
         }
